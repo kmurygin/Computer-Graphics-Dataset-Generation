@@ -86,7 +86,7 @@ def render_object(obj, tx, ty, zpos, rx, ry):
 
 def main():
     init()
-    obj = OBJ("Football.obj", swapyz=True)
+    obj = OBJ("models/Football.obj", swapyz=True)
     obj.generate()
 
     clock = pygame.time.Clock()
