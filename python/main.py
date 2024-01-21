@@ -12,10 +12,10 @@ move = False
 def init_camera():
     # Define initial camera parameters
     initial_camera_params = {
-        'position': [0, 5, 5],  # Adjust the Y-coordinate to move the camera lower and Z-coordinate to move it closer
+        'position': [0, 2, 10],  # Adjust the Y-coordinate to move the camera lower and Z-coordinate to move it closer
         'direction': [0, 0, -1],
         'up_vector': [0, 1, 0],
-        'field_of_view': 90.0,  # Experiment with different field of view values
+        'field_of_view': 90.0,
         'transition_frames': 60
     }
 

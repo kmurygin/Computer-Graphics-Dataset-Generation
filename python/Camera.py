@@ -14,6 +14,11 @@ class Camera:
         right = cross_product(forward, self.up_vector)
         up = cross_product(right, forward)
 
+        # Normalize the vectors
+        forward = normalize(forward)
+        right = normalize(right)
+        up = normalize(up)
+
         view_matrix = [
             right[0], up[0], -forward[0], 0,
             right[1], up[1], -forward[1], 0,
@@ -45,7 +50,12 @@ def cross_product(a, b):
         a[0] * b[1] - a[1] * b[0]
     ]
 
-
+def normalize(v):
+    length = sum(v_i**2 for v_i in v)**0.5
+    if length != 0:
+        return [v_i / length for v_i in v]
+    else:
+        return v
 def dot_product(a, b):
     return sum(a_i * b_i for a_i, b_i in zip(a, b))
 
