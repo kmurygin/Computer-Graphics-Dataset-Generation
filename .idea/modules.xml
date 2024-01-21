@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/GKOM_DATASET.iml" filepath="$PROJECT_DIR$/.idea/GKOM_DATASET.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/Dataset-Generation.iml" filepath="$PROJECT_DIR$/.idea/Dataset-Generation.iml" />
     </modules>
   </component>
 </project>
