@@ -2,6 +2,7 @@ import sys
 from pygame.constants import *
 from OpenGL.GLU import *
 from OBJ import *
+import json
 
 rotate = False
 move = False
@@ -30,6 +31,19 @@ def setup_projection(width, height):
     gluPerspective(90.0, width / float(height), 1, 100.0)
     glEnable(GL_DEPTH_TEST)
     glMatrixMode(GL_MODELVIEW)
+
+
+def load_objects_from_json(json_filename):
+    with open(json_filename, 'r') as file:
+        objects_data = json.load(file)
+
+    objects = []
+    for obj_data in objects_data:
+        obj = OBJ(obj_data["filename"], obj_data.get("swapyz", False), obj_data.get("position"),
+                  obj_data.get("rotation"))
+        objects.append(obj)
+
+    return objects
 
 
 def handle_input(rx, ry, tx, ty, zpos):
@@ -85,9 +99,27 @@ def render_object(obj, tx, ty, zpos, rx, ry):
 
 
 def main():
+    # init()
+    # obj = OBJ("models/Football.obj", swapyz=True)
+    # obj.generate()
+    #
+    # clock = pygame.time.Clock()
+    # width, height = 800, 600
+    # setup_projection(width, height)
+    #
+    # rx, ry, tx, ty = [0], [0], [0], [0]
+    # zpos = [5]
+    #
+    # while True:
+    #     clock.tick(30)
+    #     handle_input(rx, ry, tx, ty, zpos)
+    #
+    #     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+    #     render_object(obj, tx, ty, zpos, rx, ry)
+    #
+    #     pygame.display.flip()
     init()
-    obj = OBJ("models/Football.obj", swapyz=True)
-    obj.generate()
+    objects = load_objects_from_json("objects.json")
 
     clock = pygame.time.Clock()
     width, height = 800, 600
@@ -101,7 +133,10 @@ def main():
         handle_input(rx, ry, tx, ty, zpos)
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
-        render_object(obj, tx, ty, zpos, rx, ry)
+
+        # Render all objects on the scene
+        for obj in objects:
+            render_object(obj, tx, ty, zpos, rx, ry)
 
         pygame.display.flip()
 

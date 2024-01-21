@@ -1,0 +1,9 @@
+[
+    {
+        "id": 1,
+        "filename": "models/Football.obj",
+        "position": [0, 0, -5],
+        "rotation": [0, 0, 0],
+        "swapyz": true
+    }
+]

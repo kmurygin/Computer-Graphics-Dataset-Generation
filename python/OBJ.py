@@ -41,13 +41,17 @@ class OBJ:
                 mtl[values[0]] = list(map(float, values[1:]))
         return contents
 
-    def __init__(self, filename, swapyz=False):
+    def __init__(self, filename, swapyz=False, position=None, rotation=None):
         """Loads a Wavefront OBJ file. """
         self.vertices = []
         self.normals = []
         self.texcoords = []
         self.faces = []
         self.gl_list = 0
+
+        self.position = position or [0, 0, 0]
+        self.rotation = rotation or [0, 0, 0]
+
         dirname = os.path.dirname(filename)
 
         material = None
