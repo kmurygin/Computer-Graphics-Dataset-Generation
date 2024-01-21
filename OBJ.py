@@ -3,12 +3,14 @@ from OpenGL.GL import *
 import os
 
 
+# Klasa reprezentująca obiekt wczytany z pliku Wavefront OBJ
 class OBJ:
     generate_on_init = True
 
+    # Metoda do wczytywania tekstur z pliku oprazu
     @classmethod
-    def load_texture(cls, imagefile):
-        surf = pygame.image.load(imagefile)
+    def load_texture(cls, image_file):
+        surf = pygame.image.load(image_file)
         image = pygame.image.tostring(surf, 'RGBA', 1)
         ix, iy = surf.get_rect().size
         texid = glGenTextures(1)
@@ -18,6 +20,7 @@ class OBJ:
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, ix, iy, 0, GL_RGBA, GL_UNSIGNED_BYTE, image)
         return texid
 
+    # Metoda do wczytywania materiałów z pliku .mtl
     @classmethod
     def load_material(cls, filename):
         contents = {}
@@ -33,7 +36,6 @@ class OBJ:
             elif mtl is None:
                 raise ValueError("mtl file doesn't start with newmtl stmt")
             elif values[0] == 'map_Kd':
-                # load the texture referred to by this declaration
                 mtl[values[0]] = values[1]
                 imagefile = os.path.join(dirname, mtl['map_Kd'])
                 mtl['texture_Kd'] = cls.load_texture(imagefile)
@@ -41,6 +43,7 @@ class OBJ:
                 mtl[values[0]] = list(map(float, values[1:]))
         return contents
 
+    # Konstruktor klasy OBJ
     def __init__(self, filename, swapyz=False, position=None, rotation=None):
         """Loads a Wavefront OBJ file. """
         self.vertices = []
@@ -94,24 +97,23 @@ class OBJ:
         if self.generate_on_init:
             self.generate()
 
+    # Metoda do generowania listy wyświetlania obiektu w OpenGL
     def generate(self):
         self.gl_list = glGenLists(1)
         glNewList(self.gl_list, GL_COMPILE)
         glEnable(GL_TEXTURE_2D)
         glFrontFace(GL_CCW)
 
-        glPushMatrix()  # Save the current modelview matrix
-        glTranslatef(*self.position)  # Apply the object's position
+        glPushMatrix()  # Zachowanie aktualnej macierzy modelView
+        glTranslatef(*self.position)  # Zastosowanie pozycji obiektu
 
         for face in self.faces:
             vertices, normals, texture_coords, material = face
 
             mtl = self.mtl[material]
             if 'texture_Kd' in mtl:
-                # use diffuse texmap
                 glBindTexture(GL_TEXTURE_2D, mtl['texture_Kd'])
             else:
-                # just use diffuse color
                 glColor(*mtl['Kd'])
 
             glBegin(GL_POLYGON)
@@ -123,14 +125,16 @@ class OBJ:
                 glVertex3fv(self.vertices[vertices[i] - 1])
             glEnd()
 
-        glPopMatrix()  # Restore the original modelview matrix
+        glPopMatrix()   # Przywrócenie oryginalnej macierzy modelView
         glDisable(GL_TEXTURE_2D)
         glEndList()
 
+    # Metoda do renderowania obiektu w scenie
     def render(self):
         glEnable(GL_TEXTURE_2D)
         glCallList(self.gl_list)
         glDisable(GL_TEXTURE_2D)
 
+    # Metoda do zwolnienia zasobów związanych z obiektem
     def free(self):
         glDeleteLists([self.gl_list])
