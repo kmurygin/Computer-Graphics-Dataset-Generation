@@ -1,7 +1,8 @@
-import sys
 from pygame.constants import *
 from OpenGL.GLU import *
 from OBJ import *
+import json
+import sys
 from Camera import *
 
 rotate = False
@@ -48,7 +49,22 @@ def init():
     glShadeModel(GL_SMOOTH)
 
 
+
+def load_objects_from_json(json_filename):
+    with open(json_filename, 'r') as file:
+        objects_data = json.load(file)
+
+    objects = []
+    for obj_data in objects_data:
+        obj = OBJ(obj_data["filename"], obj_data.get("swapyz", False), obj_data.get("position"),
+                  obj_data.get("rotation"))
+        objects.append(obj)
+
+    return objects
+
+
 def setup_projection(camera, width, height):
+
     glMatrixMode(GL_PROJECTION)
     glLoadIdentity()
     gluPerspective(camera.field_of_view, width / float(height), 1, 100.0)
@@ -98,37 +114,52 @@ def handle_mouse_motion(event, camera):
         camera.position[1] -= j * scaling_factor
 
 
-# def render_object(obj, tx, ty, zpos, rx, ry):
-#     glLoadIdentity()
-#     glTranslate(tx[0] / 20., ty[0] / 20., -zpos[0])
-#     glRotate(ry[0], 1, 0, 0)
-#     glRotate(rx[0], 0, 1, 0)
-#     obj.render()
-
-
 def main():
     init()
-    obj = OBJ("models/Football.obj", swapyz=True)
-    obj.generate()
+    if sys.argv[1] == "obj":
+        obj = OBJ("models/Football.obj", swapyz=True)
+        obj.generate()
 
-    clock = pygame.time.Clock()
-    width, height = 1000, 1000
-    setup_projection(init_camera(), width, height)
+      clock = pygame.time.Clock()
+      width, height = 1000, 1000
+      setup_projection(init_camera(), width, height)
 
-    current_camera = init_camera()
-    target_camera = Camera([5, 5, 5], [0, 0, 0], [0, 1, 0], 60.0, 60)
+      current_camera = init_camera()
+      target_camera = Camera([5, 5, 5], [0, 0, 0], [0, 1, 0], 60.0, 60)
 
-    frame_count = 0
+      frame_count = 0
 
-    while True:
-        clock.tick(30)
-        handle_input(current_camera)
+      while True:
+          clock.tick(30)
+          handle_input(current_camera)
 
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+          glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
-        render_object(obj, current_camera)
+          render_object(obj, current_camera)
 
-        pygame.display.flip()
+            pygame.display.flip()
+    elif sys.argv[1] == "json":
+        objects = load_objects_from_json("objects.json")
+
+        clock = pygame.time.Clock()
+        width, height = 1000, 1000
+        setup_projection(init_camera(), width, height)
+
+        current_camera = init_camera()
+        target_camera = Camera([5, 5, 5], [0, 0, 0], [0, 1, 0], 60.0, 60)
+
+        frame_count = 0
+
+        while True:
+            clock.tick(30)
+            handle_input(current_camera)
+
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+
+            render_object(obj, current_camera)
+
+
+            pygame.display.flip()
 
         frame_count += 1
 
