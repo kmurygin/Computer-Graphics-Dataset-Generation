@@ -1,0 +1,51 @@
+[
+    {
+        "id": 1,
+        "filename": "Models/Lowpoly_Fox.obj",
+        "position": [0.0, 0.0, -1.0],
+        "rotation": [0.0, 30.0, 0.0],
+        "swapyz": false
+    },
+    {
+        "id": 3,
+        "filename": "Models/Car.obj",
+        "position": [-5.0, 1.0, -2.0],
+        "rotation": [10.0, -20.0, 0.0],
+        "swapyz": false
+    },
+    {
+        "id": 4,
+        "filename": "Models/Cube.obj",
+        "position": [3.0, 0.0, -5.0],
+        "rotation": [0.0, 0.0, 45.0],
+        "swapyz": false
+    },
+    {
+        "id": 5,
+        "filename": "Models/Earth.obj",
+        "position": [-2.0, 2.0, -4.0],
+        "rotation": [15.0, 30.0, 0.0],
+        "swapyz": false
+    },
+    {
+        "id": 6,
+        "filename": "Models/Football.obj",
+        "position": [2.0, 0.0, -8.0],
+        "rotation": [0.0, 45.0, 0.0],
+        "swapyz": false
+    },
+    {
+        "id": 7,
+        "filename": "Models/Lowpoly_Tree.obj",
+        "position": [4.0, -1.0, -3.0],
+        "rotation": [-10.0, 0.0, 0.0],
+        "swapyz": false
+    },
+    {
+        "id": 8,
+        "filename": "Models/Orange.obj",
+        "position": [-3.0, -1.0, -6.0],
+        "rotation": [20.0, -30.0, 0.0],
+        "swapyz": false
+    }
+]

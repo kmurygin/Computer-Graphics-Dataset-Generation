@@ -1,7 +1,8 @@
-import sys
 from pygame.constants import *
 from OpenGL.GLU import *
 from OBJ import *
+import json
+import sys
 
 rotate = False
 move = False
@@ -22,6 +23,19 @@ def init():
     glEnable(GL_COLOR_MATERIAL)
     glEnable(GL_DEPTH_TEST)
     glShadeModel(GL_SMOOTH)
+
+
+def load_objects_from_json(json_filename):
+    with open(json_filename, 'r') as file:
+        objects_data = json.load(file)
+
+    objects = []
+    for obj_data in objects_data:
+        obj = OBJ(obj_data["filename"], obj_data.get("swapyz", False), obj_data.get("position"),
+                  obj_data.get("rotation"))
+        objects.append(obj)
+
+    return objects
 
 
 def setup_projection(width, height):
@@ -86,24 +100,46 @@ def render_object(obj, tx, ty, zpos, rx, ry):
 
 def main():
     init()
-    obj = OBJ("models/Football.obj", swapyz=True)
-    obj.generate()
+    if sys.argv[1] == "obj":
+        obj = OBJ("models/Football.obj", swapyz=True)
+        obj.generate()
 
-    clock = pygame.time.Clock()
-    width, height = 800, 600
-    setup_projection(width, height)
+        clock = pygame.time.Clock()
+        width, height = 800, 600
+        setup_projection(width, height)
 
-    rx, ry, tx, ty = [0], [0], [0], [0]
-    zpos = [5]
+        rx, ry, tx, ty = [0], [0], [0], [0]
+        zpos = [5]
 
-    while True:
-        clock.tick(30)
-        handle_input(rx, ry, tx, ty, zpos)
+        while True:
+            clock.tick(30)
+            handle_input(rx, ry, tx, ty, zpos)
 
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
-        render_object(obj, tx, ty, zpos, rx, ry)
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+            render_object(obj, tx, ty, zpos, rx, ry)
 
-        pygame.display.flip()
+            pygame.display.flip()
+    elif sys.argv[1] == "json":
+        objects = load_objects_from_json("objects.json")
+
+        clock = pygame.time.Clock()
+        width, height = 800, 600
+        setup_projection(width, height)
+
+        rx, ry, tx, ty = [0], [0], [0], [0]
+        zpos = [5]
+
+        while True:
+            clock.tick(30)
+            handle_input(rx, ry, tx, ty, zpos)
+
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+
+            # Render all objects on the scene
+            for obj in objects:
+                render_object(obj, tx, ty, zpos, rx, ry)
+
+            pygame.display.flip()
 
 
 if __name__ == "__main__":
