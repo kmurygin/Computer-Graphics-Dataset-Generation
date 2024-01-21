@@ -12,6 +12,7 @@ move = False
 def init_camera():
     # Define initial camera parameters
     initial_camera_params = {
+        'id': 1,
         'position': [0, 2, 10],  # Adjust the Y-coordinate to move the camera lower and Z-coordinate to move it closer
         'direction': [0, 0, -1],
         'up_vector': [0, 1, 0],
@@ -22,6 +23,24 @@ def init_camera():
     # Create initial camera
     return Camera(**initial_camera_params)
 
+
+def load_cameras_from_json(json_filename):
+    with open(json_filename, 'r') as file:
+        cameras_data = json.load(file)
+
+    cameras = []
+    for camera_data in cameras_data:
+        camera = Camera(id=camera_data["id"],
+                        position=camera_data["position"],
+                        direction=camera_data["direction"],
+                        up_vector=camera_data["up_vector"],
+                        field_of_view=camera_data["field_of_view"],
+                        transition_frames=camera_data["transition_frames"])
+        cameras.append(camera)
+
+    return cameras
+
+
 def camera_render_object(obj, camera):
     glLoadIdentity()
 
@@ -30,12 +49,14 @@ def camera_render_object(obj, camera):
 
     obj.render()
 
+
 def camera_handle_mouse_down(event, camera):
     global rotate, move
     if event.button == 1:
         rotate = True
     elif event.button == 3:
         move = True
+
 
 def camera_handle_mouse_motion(event, camera):
     global rotate, move
@@ -48,6 +69,7 @@ def camera_handle_mouse_motion(event, camera):
     if move:
         camera.position[0] += i * scaling_factor
         camera.position[1] -= j * scaling_factor
+
 
 def camera_handle_input(camera):
     global rotate, move
@@ -68,6 +90,7 @@ def camera_setup_projection(camera, width, height):
     gluPerspective(camera.field_of_view, width / float(height), 1, 100.0)
     glEnable(GL_DEPTH_TEST)
     glMatrixMode(GL_MODELVIEW)
+
 
 def init():
     pygame.init()
@@ -98,12 +121,14 @@ def load_objects_from_json(json_filename):
 
     return objects
 
+
 def setup_projection(width, height):
     glMatrixMode(GL_PROJECTION)
     glLoadIdentity()
     gluPerspective(90.0, width / float(height), 1, 100.0)
     glEnable(GL_DEPTH_TEST)
     glMatrixMode(GL_MODELVIEW)
+
 
 def handle_input(rx, ry, tx, ty, zpos):
     global rotate, move
@@ -205,7 +230,7 @@ def main():
             width, height = 1000, 1000
             camera_setup_projection(init_camera(), width, height)
             current_camera = init_camera()
-            target_camera = Camera(position=[0, 0, -5], direction=[0, 0, -1], up_vector=[0, 1, 0], field_of_view=60.0,
+            target_camera = Camera(id=2, position=[0, 0, -5], direction=[0, 0, -1], up_vector=[0, 1, 0], field_of_view=60.0,
                                    transition_frames=60)
             frame_count = 0
             while True:
@@ -226,29 +251,40 @@ def main():
                                                                                                  [0, 1, 0], 60.0, 60)
         elif sys.argv[2] == "json":
             objects = load_objects_from_json("objects.json")
+            cameras = load_cameras_from_json("cameras.json")
+
             clock = pygame.time.Clock()
             width, height = 1000, 1000
-            camera_setup_projection(init_camera(), width, height)
-            current_camera = init_camera()
-            target_camera = Camera([5, 5, 5], [0, 0, 0], [0, 1, 0], 60.0, 60)
+            camera_setup_projection(cameras[0], width, height)
+            current_camera_index = 0
+            current_camera = cameras[current_camera_index]
+            target_camera_index = (current_camera_index + 1) % len(cameras)
+            target_camera = cameras[target_camera_index]
             frame_count = 0
+
             while True:
                 clock.tick(30)
                 camera_handle_input(current_camera)
                 glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+
+                # Render all objects on the scene
                 for obj in objects:
                     camera_render_object(obj, current_camera)
+
                 pygame.display.flip()
-                frame_count += 1
+
+                # Check for camera switch
                 if frame_count <= current_camera.transition_frames:
                     # Interpolate between current and target camera
                     current_camera.interpolate(target_camera, frame_count, current_camera.transition_frames)
+                    frame_count += 1
                 else:
                     frame_count = 0
-                    # Switch to the next camera or reset to the initial camera
-                    current_camera = target_camera
-                    target_camera = init_camera() if current_camera == target_camera else Camera([5, 5, 5], [0, 0, 0],
-                                                                                                 [0, 1, 0], 60.0, 60)
+                    # Switch to the next camera
+                    current_camera_index = target_camera_index
+                    current_camera = cameras[current_camera_index]
+                    target_camera_index = (current_camera_index + 1) % len(cameras)
+                    target_camera = cameras[target_camera_index]
 
 
 if __name__ == "__main__":

@@ -1,5 +1,6 @@
 class Camera:
-    def __init__(self, position, direction, up_vector, field_of_view, transition_frames):
+    def __init__(self, id, position, direction, up_vector, field_of_view, transition_frames):
+        self.id = id
         self.position = position
         self.direction = direction
         self.up_vector = up_vector
