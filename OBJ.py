@@ -2,6 +2,10 @@ import pygame
 from OpenGL.GL import *
 import os
 
+PHONG_AMBIENT = (0.2, 0.2, 0.2, 1.0)
+PHONG_DIFFUSE = (0.8, 0.8, 0.8, 1.0)
+PHONG_SPECULAR = (1.0, 1.0, 1.0, 1.0)
+PHONG_SHININESS = 50.0
 
 class OBJ:
     generate_on_init = True
@@ -113,6 +117,11 @@ class OBJ:
             else:
                 # just use diffuse color
                 glColor(*mtl['Kd'])
+
+            glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, mtl['Ka'])
+            glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, mtl['Kd'])
+            glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, PHONG_SPECULAR)
+            glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, PHONG_SHININESS)
 
             glBegin(GL_POLYGON)
             for i in range(len(vertices)):

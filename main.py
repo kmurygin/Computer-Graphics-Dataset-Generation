@@ -1,5 +1,8 @@
 from pygame.constants import *
+from pygame.locals import *
+from OpenGL.GL import*
 from OpenGL.GLU import *
+from OpenGL.GLUT import *
 from OBJ import *
 import json
 import sys
@@ -108,6 +111,11 @@ def init():
     glEnable(GL_DEPTH_TEST)
     glShadeModel(GL_SMOOTH)
 
+    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, (0.2, 0.2, 0.2, 1.0))
+    glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, (0.8, 0.8, 0.8, 1.0))
+    glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, (1.0, 1.0, 1.0, 1.0))
+    glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, 50.0)
+
 
 def load_objects_from_json(json_filename):
     with open(json_filename, 'r') as file:
@@ -173,9 +181,27 @@ def handle_mouse_motion(event, rx, ry, tx, ty):
         tx[0] += i
         ty[0] -= j
 
+def render_phong(self):
+        glBegin(GL_TRIANGLES)
+        for face in self.faces:
+            for i in range(3):
+                vertex_index = face[i][0]
+                normal_index = face[i][2]
+                
+                glNormal3fv(self.normals[normal_index])
+                glVertex3fv(self.vertices[vertex_index])
+        glEnd()
+
 
 def render_object(obj, tx, ty, zpos, rx, ry):
     glLoadIdentity()
+
+    glEnable(GL_LIGHTING)
+    glEnable(GL_LIGHT0)
+    glLightfv(GL_LIGHT0, GL_POSITION, (-40, 200, 100, 0.0))
+    glLightfv(GL_LIGHT0, GL_AMBIENT, (0.2, 0.2, 0.2, 1.0))
+    glLightfv(GL_LIGHT0, GL_DIFFUSE, (0.5, 0.5, 0.5, 1.0))
+
     glTranslate(tx[0] / 20., ty[0] / 20., -zpos[0])
     glRotate(ry[0], 1, 0, 0)
     glRotate(rx[0], 0, 1, 0)
