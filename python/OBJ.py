@@ -48,10 +48,6 @@ class OBJ:
         self.texcoords = []
         self.faces = []
         self.gl_list = 0
-
-        self.position = position or [0, 0, 0]
-        self.rotation = rotation or [0, 0, 0]
-
         dirname = os.path.dirname(filename)
 
         material = None
@@ -91,6 +87,10 @@ class OBJ:
                     else:
                         norms.append(0)
                 self.faces.append((face, norms, texcoords, material))
+
+        self.position = position or [0, 0, 0]
+        self.rotation = rotation or [0, 0, 0]
+
         if self.generate_on_init:
             self.generate()
 
@@ -99,6 +99,10 @@ class OBJ:
         glNewList(self.gl_list, GL_COMPILE)
         glEnable(GL_TEXTURE_2D)
         glFrontFace(GL_CCW)
+
+        glPushMatrix()  # Save the current modelview matrix
+        glTranslatef(*self.position)  # Apply the object's position
+
         for face in self.faces:
             vertices, normals, texture_coords, material = face
 
@@ -107,7 +111,7 @@ class OBJ:
                 # use diffuse texmap
                 glBindTexture(GL_TEXTURE_2D, mtl['texture_Kd'])
             else:
-                # just use diffuse colour
+                # just use diffuse color
                 glColor(*mtl['Kd'])
 
             glBegin(GL_POLYGON)
@@ -118,6 +122,8 @@ class OBJ:
                     glTexCoord2fv(self.texcoords[texture_coords[i] - 1])
                 glVertex3fv(self.vertices[vertices[i] - 1])
             glEnd()
+
+        glPopMatrix()  # Restore the original modelview matrix
         glDisable(GL_TEXTURE_2D)
         glEndList()
 
