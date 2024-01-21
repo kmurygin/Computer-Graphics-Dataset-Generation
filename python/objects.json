@@ -1,7 +1,7 @@
 [
     {
       "id": 1,
-      "objFileName": "Models/Lowpoly_Fox.obj",
+      "objFileName": "models/Lowpoly_Fox.obj",
       "posX": 0.0,
       "posY": 0.0,
       "posZ": -1.0,
@@ -11,7 +11,7 @@
     },
     {
       "id": 3,
-      "objFileName": "Models/Car.obj",
+      "objFileName": "models/Car.obj",
       "posX": -5.0,
       "posY": 1.0,
       "posZ": -2.0,
@@ -21,7 +21,7 @@
     },
     {
       "id": 4,
-      "objFileName": "Models/Cube.obj",
+      "objFileName": "models/Cube.obj",
       "posX": 3.0,
       "posY": 0.0,
       "posZ": -5.0,
@@ -31,7 +31,7 @@
     },
     {
       "id": 5,
-      "objFileName": "Models/Earth.obj",
+      "objFileName": "models/Earth.obj",
       "posX": -2.0,
       "posY": 2.0,
       "posZ": -4.0,
@@ -41,7 +41,7 @@
     },
     {
       "id": 6,
-      "objFileName": "Models/Football.obj",
+      "objFileName": "models/Football.obj",
       "posX": 2.0,
       "posY": 0.0,
       "posZ": -8.0,
@@ -51,7 +51,7 @@
     },
     {
       "id": 7,
-      "objFileName": "Models/Lowpoly_Tree.obj",
+      "objFileName": "models/Lowpoly_Tree.obj",
       "posX": 4.0,
       "posY": -1.0,
       "posZ": -3.0,
@@ -61,7 +61,7 @@
     },
     {
       "id": 8,
-      "objFileName": "Models/Orange.obj",
+      "objFileName": "models/Orange.obj",
       "posX": -3.0,
       "posY": -1.0,
       "posZ": -6.0,
