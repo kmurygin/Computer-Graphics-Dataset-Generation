@@ -1,7 +1,7 @@
 [
     {
         "id": 1,
-        "position": [0, 10, 150],
+        "position": [0, 1, 5],
         "direction": [0, 0, -1],
         "up_vector": [0, 1, 0],
         "field_of_view": 90.0,
@@ -9,7 +9,7 @@
     },
     {
         "id": 2,
-        "position": [0, 0, -5],
+        "position": [0, 0, -3],
         "direction": [0, 0, -1],
         "up_vector": [0, 1, 0],
         "field_of_view": 60.0,
@@ -17,7 +17,7 @@
     },
     {
         "id": 3,
-        "position": [5, 5, 5],
+        "position": [2, 1, 2],
         "direction": [-1, -1, -1],
         "up_vector": [0, 1, 0],
         "field_of_view": 75.0,
@@ -25,15 +25,15 @@
     },
     {
         "id": 4,
-        "position": [-3, 8, 2],
-        "direction": [1, 0, 1],
+        "position": [-1, 2, 0],
+        "direction": [-1, 0, -1],
         "up_vector": [0, 1, 0],
         "field_of_view": 120.0,
         "transition_frames": 90
     },
     {
         "id": 5,
-        "position": [10, 5, 0],
+        "position": [5, 3, 0],
         "direction": [0, 0, -1],
         "up_vector": [0, 1, 0],
         "field_of_view": 80.0,
@@ -41,15 +41,15 @@
     },
     {
         "id": 6,
-        "position": [-5, 3, 8],
+        "position": [-3, 2, 4],
         "direction": [1, -1, -1],
         "up_vector": [0, 1, 0],
         "field_of_view": 100.0,
         "transition_frames": 75
     },
-        {
+    {
         "id": 7,
-        "position": [5, 4, 12],
+        "position": [3, 2, 6],
         "direction": [1, -1, -1],
         "up_vector": [0, 1, 0],
         "field_of_view": 100.0,
