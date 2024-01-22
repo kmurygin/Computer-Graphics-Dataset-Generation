@@ -7,6 +7,8 @@ from OBJ import *
 import json
 import sys
 from Camera import *
+from datetime import datetime
+import os
 
 rotate = False
 move = False
@@ -208,6 +210,21 @@ def render_object(obj, tx, ty, zpos, rx, ry):
     obj.render()
 
 
+def create_folder():
+    time_now = datetime.now()
+    folder_name = time_now.strftime('%d%m%Y_%H%M')
+    os.makedirs(f'./{folder_name}')
+    return folder_name
+
+
+def capture_screenshot(camera_id, folder_name):
+    screen = pygame.display.get_surface()
+    size = screen.get_size()
+    buffer = glReadPixels(0, 0, *size, GL_RGBA, GL_UNSIGNED_BYTE)
+    screen_surf = pygame.image.fromstring(buffer, size, "RGBA")
+    pygame.image.save(screen_surf, f"./{folder_name}/screenshot{camera_id}.jpg")
+
+
 def main():
     init()
     if sys.argv[1] == "obj":
@@ -287,6 +304,7 @@ def main():
             target_camera_index = (current_camera_index + 1) % len(cameras)
             target_camera = cameras[target_camera_index]
             frame_count = 0
+            i = 0
 
             while True:
                 clock.tick(30)
@@ -298,7 +316,6 @@ def main():
                     camera_render_object(obj, current_camera)
 
                 pygame.display.flip()
-
                 # Check for camera switch
                 if frame_count <= current_camera.transition_frames:
                     # Interpolate between current and target camera
@@ -306,11 +323,13 @@ def main():
                     frame_count += 1
                 else:
                     frame_count = 0
+                    i += 1
                     # Switch to the next camera
                     current_camera_index = target_camera_index
                     current_camera = cameras[current_camera_index]
                     target_camera_index = (current_camera_index + 1) % len(cameras)
                     target_camera = cameras[target_camera_index]
+    return
 
 
 if __name__ == "__main__":
