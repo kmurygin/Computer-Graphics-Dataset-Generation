@@ -501,7 +501,7 @@ def main():
             objects = load_objects_from_json("objects.json")
             cameras = load_cameras_from_json("cameras.json")
             render_with_some_cameras(objects, cameras)
-
+    """
 
 if __name__ == "__main__":
     main()
