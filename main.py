@@ -225,108 +225,84 @@ def capture_screenshot(camera_id, folder_name):
     pygame.image.save(screen_surf, f"./{folder_name}/screenshot{camera_id}.jpg")
 
 
-def main():
-    init()
-    if sys.argv[1] == "obj":
-        obj = OBJ("models/Football.obj", swapyz=True)
-        obj.generate()
-        clock = pygame.time.Clock()
-        width, height = 1000, 1000
-        setup_projection(width, height)
-        rx, ry, tx, ty = [0], [0], [0], [0]
-        zpos = [5]
-        while True:
-            clock.tick(30)
-            handle_input(rx, ry, tx, ty, zpos)
+def render_with_one_camera(objects):
+    clock = pygame.time.Clock()
+    width, height = 1000, 1000
+    setup_projection(width, height)
 
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+    rx, ry, tx, ty = [0], [0], [0], [0]
+    zpos = [5]
+
+    while True:
+        clock.tick(30)
+        handle_input(rx, ry, tx, ty, zpos)
+
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+
+        # Render all objects on the scene
+        for obj in objects:
             render_object(obj, tx, ty, zpos, rx, ry)
 
-            pygame.display.flip()
-    elif sys.argv[1] == "json":
-        objects = load_objects_from_json("objects.json")
+        pygame.display.flip()
 
-        clock = pygame.time.Clock()
-        width, height = 800, 600
-        setup_projection(width, height)
 
-        rx, ry, tx, ty = [0], [0], [0], [0]
-        zpos = [5]
+def render_with_some_cameras(objects, cameras):
+    clock = pygame.time.Clock()
+    width, height = 1000, 1000
+    camera_setup_projection(cameras[0], width, height)
+    current_camera_index = 0
+    current_camera = cameras[current_camera_index]
+    target_camera_index = (current_camera_index + 1) % len(cameras)
+    target_camera = cameras[target_camera_index]
+    frame_count = 0
 
-        while True:
-            clock.tick(30)
-            handle_input(rx, ry, tx, ty, zpos)
+    while True:
+        clock.tick(30)
+        camera_handle_input(current_camera)
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+        # Render all objects on the scene
+        for obj in objects:
+            camera_render_object(obj, current_camera)
 
-            # Render all objects on the scene
-            for obj in objects:
-                render_object(obj, tx, ty, zpos, rx, ry)
-
-            pygame.display.flip()
-
-    elif sys.argv[1] == "cam":
-        if sys.argv[2] == "obj":
-            obj = OBJ("models/Football.obj", swapyz=True)
-            obj.generate()
-            clock = pygame.time.Clock()
-            width, height = 1000, 1000
-            camera_setup_projection(init_camera(), width, height)
-            current_camera = init_camera()
-            target_camera = Camera(id=2, position=[0, 0, -5], direction=[0, 0, -1], up_vector=[0, 1, 0], field_of_view=60.0,
-                                   transition_frames=60)
+        pygame.display.flip()
+        # Check for camera switch
+        if frame_count <= current_camera.transition_frames:
+            # Interpolate between current and target camera
+            current_camera.interpolate(target_camera, frame_count, current_camera.transition_frames)
+            frame_count += 1
+        else:
             frame_count = 0
-            while True:
-                clock.tick(30)
-                camera_handle_input(current_camera)
-                glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
-                camera_render_object(obj, current_camera)
-                pygame.display.flip()
-                frame_count += 1
-                if frame_count <= current_camera.transition_frames:
-                    # Interpolate between current and target camera
-                    current_camera.interpolate(target_camera, frame_count, current_camera.transition_frames)
-                else:
-                    frame_count = 0
-                    # Switch to the next camera or reset to the initial camera
-                    current_camera = target_camera
-                    target_camera = init_camera() if current_camera == target_camera else Camera([5, 5, 5], [0, 0, 0],
-                                                                                                 [0, 1, 0], 60.0, 60)
-        elif sys.argv[2] == "json":
-            objects = load_objects_from_json("objects.json")
-            cameras = load_cameras_from_json("cameras.json")
-
-            clock = pygame.time.Clock()
-            width, height = 1000, 1000
-            camera_setup_projection(cameras[0], width, height)
-            current_camera_index = 0
+            # Switch to the next camera
+            current_camera_index = target_camera_index
             current_camera = cameras[current_camera_index]
             target_camera_index = (current_camera_index + 1) % len(cameras)
             target_camera = cameras[target_camera_index]
-            frame_count = 0
 
-            while True:
-                clock.tick(30)
-                camera_handle_input(current_camera)
-                glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
-                # Render all objects on the scene
-                for obj in objects:
-                    camera_render_object(obj, current_camera)
+def main():
+    init()
+    if sys.argv[1] == "obj":
+        objects = [OBJ("models/Football.obj", swapyz=True)]
+        render_with_one_camera(objects)
 
-                pygame.display.flip()
-                # Check for camera switch
-                if frame_count <= current_camera.transition_frames:
-                    # Interpolate between current and target camera
-                    current_camera.interpolate(target_camera, frame_count, current_camera.transition_frames)
-                    frame_count += 1
-                else:
-                    frame_count = 0
-                    # Switch to the next camera
-                    current_camera_index = target_camera_index
-                    current_camera = cameras[current_camera_index]
-                    target_camera_index = (current_camera_index + 1) % len(cameras)
-                    target_camera = cameras[target_camera_index]
+    elif sys.argv[1] == "json":
+        objects = load_objects_from_json("objects.json")
+        render_with_one_camera(objects)
+
+    elif sys.argv[1] == "cam":
+        if sys.argv[2] == "obj":
+            objects = [OBJ("models/Football.obj", swapyz=True)]
+            cameras = [Camera(id=2, position=[0, 0, -5], direction=[0, 0, -1], up_vector=[0, 1, 0], field_of_view=60.0,
+                              transition_frames=60),
+                       Camera(id=3, position=[5, 5, 5], direction=[0, 0, 0], up_vector=[0, 1, 0], field_of_view=60.0,
+                              transition_frames=60)]
+            render_with_some_cameras(objects, cameras)
+
+        elif sys.argv[2] == "json":
+            objects = load_objects_from_json("objects.json")
+            cameras = load_cameras_from_json("cameras.json")
+            render_with_some_cameras(objects, cameras)
 
 
 if __name__ == "__main__":
