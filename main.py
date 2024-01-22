@@ -304,7 +304,6 @@ def main():
             target_camera_index = (current_camera_index + 1) % len(cameras)
             target_camera = cameras[target_camera_index]
             frame_count = 0
-            i = 0
 
             while True:
                 clock.tick(30)
@@ -323,13 +322,11 @@ def main():
                     frame_count += 1
                 else:
                     frame_count = 0
-                    i += 1
                     # Switch to the next camera
                     current_camera_index = target_camera_index
                     current_camera = cameras[current_camera_index]
                     target_camera_index = (current_camera_index + 1) % len(cameras)
                     target_camera = cameras[target_camera_index]
-    return
 
 
 if __name__ == "__main__":
