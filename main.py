@@ -246,7 +246,7 @@ def render_with_one_camera(objects):
         pygame.display.flip()
 
 
-def render_with_some_cameras(objects, cameras):
+def render_with_some_cameras(objects, cameras, png_dir):
     clock = pygame.time.Clock()
     width, height = 1000, 1000
     camera_setup_projection(cameras[0], width, height)
@@ -273,6 +273,7 @@ def render_with_some_cameras(objects, cameras):
             frame_count += 1
         else:
             frame_count = 0
+            capture_screenshot(current_camera_index, png_dir)
             # Switch to the next camera
             current_camera_index = target_camera_index
             current_camera = cameras[current_camera_index]
@@ -291,18 +292,19 @@ def main():
         render_with_one_camera(objects)
 
     elif sys.argv[1] == "cam":
+        png_dir = create_folder()
         if sys.argv[2] == "obj":
             objects = [OBJ("models/Football.obj", swapyz=True)]
             cameras = [Camera(id=2, position=[0, 0, -5], direction=[0, 0, -1], up_vector=[0, 1, 0], field_of_view=60.0,
                               transition_frames=60),
                        Camera(id=3, position=[5, 5, 5], direction=[0, 0, 0], up_vector=[0, 1, 0], field_of_view=60.0,
                               transition_frames=60)]
-            render_with_some_cameras(objects, cameras)
+            render_with_some_cameras(objects, cameras, png_dir)
 
         elif sys.argv[2] == "json":
             objects = load_objects_from_json("objects.json")
             cameras = load_cameras_from_json("cameras.json")
-            render_with_some_cameras(objects, cameras)
+            render_with_some_cameras(objects, cameras, png_dir)
 
 
 if __name__ == "__main__":
