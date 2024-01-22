@@ -381,7 +381,7 @@ def create_folder():
     return folder_name
 
 
-def capture_screenshot(camera_id, folder_name):
+def capture_screenshot(camera_id, frame, folder_name):
     """
     Capture and save a screenshot for a specific camera.
 
@@ -396,7 +396,7 @@ def capture_screenshot(camera_id, folder_name):
     size = screen.get_size()
     buffer = glReadPixels(0, 0, *size, GL_RGBA, GL_UNSIGNED_BYTE)
     screen_surf = pygame.image.fromstring(buffer, size, "RGBA")
-    pygame.image.save(screen_surf, f"./{folder_name}/screenshot{camera_id}.jpg")
+    pygame.image.save(screen_surf, f"./{folder_name}/screenshot_camera_{camera_id}_{frame}.jpg")
 
 
 def render_with_one_camera(objects):
@@ -429,7 +429,7 @@ def render_with_one_camera(objects):
         pygame.display.flip()
 
 
-def render_with_some_cameras(objects, cameras):
+def render_with_some_cameras(objects, cameras, png_dir):
     """
     Render the scene using multiple cameras.
 
@@ -463,6 +463,7 @@ def render_with_some_cameras(objects, cameras):
         if frame_count <= current_camera.transition_frames:
             # Interpolate between current and target camera
             current_camera.interpolate(target_camera, frame_count, current_camera.transition_frames)
+            capture_screenshot(current_camera.id, frame_count, png_dir)
             frame_count += 1
         else:
             frame_count = 0
@@ -473,6 +474,51 @@ def render_with_some_cameras(objects, cameras):
             target_camera = cameras[target_camera_index]
 
 
+def render_with_some_cameras_dataset(objects, cameras, png_dir):
+    """
+    Render the scene using multiple cameras, iterating through cameras only once.
+
+    Parameters:
+    - objects (list): A list of objects to render.
+    - cameras (list): A list of Camera objects.
+
+    Returns:
+    None
+    """
+    clock = pygame.time.Clock()
+    width, height = 1000, 1000
+    camera_setup_projection(cameras[0], width, height)
+    current_camera_index = 0
+    current_camera = cameras[current_camera_index]
+    target_camera_index = (current_camera_index + 1) % len(cameras)
+    target_camera = cameras[target_camera_index]
+    frame_count = 0
+
+    while current_camera_index < len(cameras):  # Modify the loop condition
+        clock.tick(30)
+        camera_handle_input(current_camera)
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+
+        # Render all objects on the scene
+        for obj in objects:
+            camera_render_object(obj, current_camera)
+
+        pygame.display.flip()
+        # Check for camera switch
+        if frame_count <= current_camera.transition_frames:
+            # Interpolate between current and target camera
+            current_camera.interpolate(target_camera, frame_count, current_camera.transition_frames)
+            capture_screenshot(current_camera.id, frame_count, png_dir)
+            frame_count += 1
+        else:
+            frame_count = 0
+            # Switch to the next camera
+            current_camera_index += 1
+            if current_camera_index < len(cameras):
+                current_camera = cameras[current_camera_index]
+                target_camera_index = (current_camera_index + 1) % len(cameras)
+                target_camera = cameras[target_camera_index]
+
 def main():
     """
     Main function to run the program based on command line arguments.
@@ -481,7 +527,13 @@ def main():
     None
     """
     init()
-    if sys.argv[1] == "obj":
+    if sys.argv[1] == "dataset":
+        png_dir = create_folder()
+        objects = load_objects_from_json("objects.json")
+        cameras = load_cameras_from_json("cameras.json")
+        render_with_some_cameras_dataset(objects, cameras, png_dir)
+
+    elif sys.argv[1] == "obj":
         objects = [OBJ("models/Football.obj", swapyz=True)]
         render_with_one_camera(objects)
 
@@ -490,18 +542,19 @@ def main():
         render_with_one_camera(objects)
 
     elif sys.argv[1] == "cam":
+        png_dir = create_folder()
         if sys.argv[2] == "obj":
             objects = [OBJ("models/Football.obj", swapyz=True)]
             cameras = [Camera(id=2, position=[0, 0, -5], direction=[0, 0, -1], up_vector=[0, 1, 0], field_of_view=60.0,
                               transition_frames=60),
                        Camera(id=3, position=[5, 5, 5], direction=[0, 0, 0], up_vector=[0, 1, 0], field_of_view=60.0,
                               transition_frames=60)]
-            render_with_some_cameras(objects, cameras)
+            render_with_some_cameras(objects, cameras, png_dir)
 
         elif sys.argv[2] == "json":
             objects = load_objects_from_json("objects.json")
             cameras = load_cameras_from_json("cameras.json")
-            render_with_some_cameras(objects, cameras)
+            render_with_some_cameras(objects, cameras, png_dir)
 
 
 if __name__ == "__main__":
