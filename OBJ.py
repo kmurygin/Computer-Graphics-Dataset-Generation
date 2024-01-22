@@ -9,11 +9,35 @@ PHONG_SHININESS = 50.0
 
 # Klasa reprezentująca obiekt wczytany z pliku Wavefront OBJ
 class OBJ:
+    """
+    Represents an object loaded from a Wavefront OBJ file.
+
+    Attributes:
+    - generate_on_init (bool): If True, generate OpenGL display list on object initialization.
+    - PHONG_AMBIENT, PHONG_DIFFUSE, PHONG_SPECULAR, PHONG_SHININESS (tuple): Phong shading parameters.
+
+    Methods:
+    - load_texture(cls, image_file): Load texture from an image file.
+    - load_material(cls, filename): Load materials from an .mtl file.
+    - __init__(self, filename, swapyz=False, position=None, rotation=None): Constructor for OBJ class.
+    - generate(self): Generate OpenGL display list for rendering.
+    - render(self): Render the object in the scene.
+    - free(self): Free resources associated with the object.
+    """
     generate_on_init = True
 
-    # Metoda do wczytywania tekstur z pliku oprazu
+    # Metoda do wczytywania tekstur z pliku obrazu
     @classmethod
     def load_texture(cls, image_file):
+        """
+        Load texture from an image file.
+
+        Parameters:
+        - image_file (str): The path to the image file.
+
+        Returns:
+        int: OpenGL texture ID.
+        """
         surf = pygame.image.load(image_file)
         image = pygame.image.tostring(surf, 'RGBA', 1)
         ix, iy = surf.get_rect().size
@@ -27,6 +51,15 @@ class OBJ:
     # Metoda do wczytywania materiałów z pliku .mtl
     @classmethod
     def load_material(cls, filename):
+        """
+        Load materials from an .mtl file.
+
+        Parameters:
+        - filename (str): The path to the .mtl file.
+
+        Returns:
+        dict: Dictionary of material properties.
+        """
         contents = {}
         mtl = None
         dirname = os.path.dirname(filename)
@@ -50,6 +83,15 @@ class OBJ:
     # Konstruktor klasy OBJ
     def __init__(self, filename, swapyz=False, position=None, rotation=None):
         """Loads a Wavefront OBJ file. """
+        """
+        Constructor for the OBJ class.
+
+        Parameters:
+        - filename (str): The path to the Wavefront OBJ file.
+        - swapyz (bool): If True, swap Y and Z coordinates.
+        - position (list): The initial position of the object.
+        - rotation (list): The initial rotation of the object.
+        """
         self.vertices = []
         self.normals = []
         self.texcoords = []
@@ -103,6 +145,12 @@ class OBJ:
 
     # Metoda do generowania listy wyświetlania obiektu w OpenGL
     def generate(self):
+        """
+        Generate OpenGL display list for rendering.
+
+        Returns:
+        None
+        """
         self.gl_list = glGenLists(1)
         glNewList(self.gl_list, GL_COMPILE)
         glEnable(GL_TEXTURE_2D)
@@ -140,10 +188,22 @@ class OBJ:
 
     # Metoda do renderowania obiektu w scenie
     def render(self):
+        """
+        Render the object in the scene.
+
+        Returns:
+        None
+        """
         glEnable(GL_TEXTURE_2D)
         glCallList(self.gl_list)
         glDisable(GL_TEXTURE_2D)
 
     # Metoda do zwolnienia zasobów związanych z obiektem
     def free(self):
+        """
+        Free resources associated with the object.
+
+        Returns:
+        None
+        """
         glDeleteLists([self.gl_list])
