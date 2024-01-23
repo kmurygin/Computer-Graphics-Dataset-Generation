@@ -519,6 +519,58 @@ def render_with_some_cameras_dataset(objects, cameras, png_dir):
                 target_camera_index = (current_camera_index + 1) % len(cameras)
                 target_camera = cameras[target_camera_index]
 
+
+def render_with_color_picking(objects):
+    # glEnable(GL_TEXTURE_2D)
+
+    # if not for_picking:
+    #     glCallList(objects)
+    # else:
+    #     # Specjalny tryb renderowania dla "color picking"
+    #     glPushName(objects)
+    #     glBegin(GL_POLYGON)
+    #     for face in self.faces:
+    #         vertices, _, _, _ = face
+    #         for i in range(len(vertices)):
+    #             glVertex3fv(self.vertices[vertices[i] - 1])
+    #     glEnd()
+    #     glPopName()
+
+    # glDisable(GL_TEXTURE_2D)
+
+    clock = pygame.time.Clock()
+    width, height = 1000, 1000
+    setup_projection(width, height)
+
+    rx, ry, tx, ty = [0], [0], [0], [0]
+    zpos = [5]
+
+    # Kolor płaski
+    flat_color = (0.5, 0.5, 0.5)
+
+    # Renderowanie dla identyfikatorów obiektów
+    object_id = 1
+
+    while True:
+        clock.tick(30)
+        handle_input(rx, ry, tx, ty, zpos)
+
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+
+        # Renderowanie wszystkich obiektów na scenie
+        for obj in objects:
+            # Ustawienie identyfikatora obiektu (unikalny dla każdego obiektu)
+            glColor3f((object_id & 0xFF) / 255.0, ((object_id >> 8) & 0xFF) / 255.0, ((object_id >> 16) & 0xFF) / 255.0)
+
+            # Renderowanie obiektu z płaskim kolorem
+            obj.render()
+
+            # Inkrementacja identyfikatora obiektu
+            object_id += 1
+
+        pygame.display.flip()
+
+
 def main():
     """
     Main function to run the program based on command line arguments.
@@ -555,6 +607,10 @@ def main():
             objects = load_objects_from_json("objects.json")
             cameras = load_cameras_from_json("cameras.json")
             render_with_some_cameras(objects, cameras, png_dir)
+
+    elif sys.argv[1] == "color_picking":  # Dodano obsługę trybu "color picking"
+        objects = [OBJ("models/Earth.obj", swapyz=True)]
+        render_with_color_picking(objects)
 
 
 if __name__ == "__main__":

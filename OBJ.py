@@ -81,7 +81,7 @@ class OBJ:
         return contents
 
     # Konstruktor klasy OBJ
-    def __init__(self, filename, swapyz=False, position=None, rotation=None):
+    def __init__(self, filename, swapyz=False, position=None, rotation=None, obj_id=None):
         """Loads a Wavefront OBJ file. """
         """
         Constructor for the OBJ class.
@@ -97,6 +97,9 @@ class OBJ:
         self.texcoords = []
         self.faces = []
         self.gl_list = 0
+        self.obj_id = obj_id
+        self.flat_color = [(self.gl_list & 0xFF) / 255.0, ((self.gl_list >> 8) & 0xFF) / 255.0, ((self.gl_list >> 16) & 0xFF) / 255.0]
+        
         dirname = os.path.dirname(filename)
 
         material = None
@@ -144,7 +147,7 @@ class OBJ:
             self.generate()
 
     # Metoda do generowania listy wyświetlania obiektu w OpenGL
-    def generate(self):
+    def generate(self, flat_color=None):
         """
         Generate OpenGL display list for rendering.
 
@@ -159,6 +162,9 @@ class OBJ:
         glPushMatrix()  # Zachowanie aktualnej macierzy modelView
         glTranslatef(*self.position)  # Zastosowanie pozycji obiektu
 
+        flat_color = [(self.gl_list & 0xFF) / 255.0, ((self.gl_list >> 8) & 0xFF) / 255.0, ((self.gl_list >> 16) & 0xFF) / 255.0, 1.0]
+        glColor(*flat_color)
+
         for face in self.faces:
             vertices, normals, texture_coords, material = face
 
@@ -166,7 +172,7 @@ class OBJ:
             if 'texture_Kd' in mtl:
                 glBindTexture(GL_TEXTURE_2D, mtl['texture_Kd'])
             else:
-                glColor(*mtl['Kd'])
+                glColor(*flat_color)
 
             glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, mtl['Ka'])
             glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, mtl['Kd'])
@@ -179,6 +185,8 @@ class OBJ:
                     glNormal3fv(self.normals[normals[i] - 1])
                 if texture_coords[i] > 0:
                     glTexCoord2fv(self.texcoords[texture_coords[i] - 1])
+                if flat_color:
+                    glColor(*flat_color)
                 glVertex3fv(self.vertices[vertices[i] - 1])
             glEnd()
 
@@ -187,7 +195,7 @@ class OBJ:
         glEndList()
 
     # Metoda do renderowania obiektu w scenie
-    def render(self):
+    def render(self, flat_color=None):
         """
         Render the object in the scene.
 
@@ -195,7 +203,7 @@ class OBJ:
         None
         """
         glEnable(GL_TEXTURE_2D)
-        glCallList(self.gl_list)
+        glCallList(self.gl_list, flat_color)
         glDisable(GL_TEXTURE_2D)
 
     # Metoda do zwolnienia zasobów związanych z obiektem
